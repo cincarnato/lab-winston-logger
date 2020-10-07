@@ -1,12 +1,6 @@
 require('dotenv').config()
 const winston = require("winston")
 
-function timezoned() {
-    return new Date().toLocaleString('ko-KR', {
-        timeZone: 'America/Argentina/Buenos_Aires', hour12: false
-    });
-};
-
 function transportsFactory() {
     let transports = [new winston.transports.Console({
         level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
