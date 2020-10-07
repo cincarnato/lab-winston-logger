@@ -4,7 +4,7 @@ const winston = require("winston")
 function transportsFactory() {
     let transports = [new winston.transports.Console({
         level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
-        format: formatter(true)
+        format: formatter(process.env.LOG_COLORIZE === 'ON' ? true : false)
     })]
 
     if (process.env.LOG_FILE === 'ON') {
