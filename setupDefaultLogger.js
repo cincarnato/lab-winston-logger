@@ -1,36 +1,54 @@
+require('dotenv').config()
 const winston = require("winston")
 
-function transportsFactory(){
+function timezoned() {
+    return new Date().toLocaleString('ko-KR', {
+        timeZone: 'America/Argentina/Buenos_Aires', hour12: false
+    });
+};
+
+function transportsFactory() {
     let transports = [new winston.transports.Console({
-        level: 'debug'
+        level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
+        format: formatter(true)
     })]
 
-    transports.push(
-        new winston.transports.File({
-            filename: 'logs/combined.log',
-        })
-    )
+    if (process.env.LOG_FILE === 'ON') {
 
-    transports.push(
-        new winston.transports.File({
-            filename: 'logs/errors.log',
-            level: 'error',
-            handleExceptions: true
-        })
-    )
+        transports.push(
+            new winston.transports.File({
+                filename: 'logs/combined.log',
+                level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
+                format: formatter(false),
+                maxsize: process.env.LOG_FILE_MAX_SIZE ? process.env.LOG_FILE_MAX_SIZE : 50000000,
+                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 5,
+            })
+        )
 
+        transports.push(
+            new winston.transports.File({
+                filename: 'logs/errors.log',
+                level: 'error',
+                handleExceptions: true,
+                format: formatter(false),
+                maxsize: process.env.LOG_FILE_MAX_SIZE ? process.env.LOG_FILE_MAX_SIZE : 50000000,
+                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 5,
+            })
+        )
+
+    }
 
     return transports
 }
 
-function getLogFormatter() {
-    const {combine, timestamp, printf, errors, colorize} = winston.format;
+function formatter(color = false) {
+    const {combine, timestamp, printf, errors, colorize, uncolorize} = winston.format;
 
     return combine(
-        errors({ stack: true }),
-        timestamp(),
-        colorize(),
-        printf(({ level, message, timestamp, stack }) => {
+        errors({stack: true}),
+        timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
+        (color ? colorize() : uncolorize()),
+        printf(({level, message, timestamp, stack}) => {
             if (stack) {
                 return `${timestamp} ${level}: ${message} - ${stack}`;
             }
@@ -40,16 +58,15 @@ function getLogFormatter() {
 }
 
 
-function setupDefaultLogger(){
+function setupDefaultLogger() {
 
     winston.configure({
-        transports: transportsFactory(),
-        format: getLogFormatter()
+        transports: transportsFactory()
     });
 
 }
 
 
-module.exports =  setupDefaultLogger
+module.exports = setupDefaultLogger
 
 
