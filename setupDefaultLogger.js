@@ -12,10 +12,10 @@ function transportsFactory() {
         transports.push(
             new winston.transports.File({
                 filename: 'logs/combined.log',
-                level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
+                level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'debug',
                 format: formatter(false),
                 maxsize: process.env.LOG_FILE_MAX_SIZE ? process.env.LOG_FILE_MAX_SIZE : 50000000,
-                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 5,
+                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 3,
             })
         )
 
@@ -26,7 +26,7 @@ function transportsFactory() {
                 handleExceptions: true,
                 format: formatter(false),
                 maxsize: process.env.LOG_FILE_MAX_SIZE ? process.env.LOG_FILE_MAX_SIZE : 50000000,
-                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 5,
+                maxFiles: process.env.LOG_FILE_MAX_FILES ? process.env.LOG_FILE_MAX_FILES : 3,
             })
         )
 
