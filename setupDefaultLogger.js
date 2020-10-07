@@ -36,7 +36,24 @@ function transportsFactory() {
 }
 
 function formatter(color = false) {
-    const {combine, timestamp, printf, errors, colorize, uncolorize} = winston.format;
+
+    const {combine, timestamp, printf, errors, colorize, uncolorize, json} = winston.format;
+
+    if (process.env.LOG_JSON === 'ON') {
+        return combine(
+            timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
+            printf((info) => {
+                return JSON.stringify({
+                        timestamp: info.timestamp,
+                        level: info.level,
+                        message: info.message,
+                        stack: info.stack
+                    }
+                )
+            })
+        )
+    }
+
 
     return combine(
         errors({stack: true}),
@@ -47,7 +64,7 @@ function formatter(color = false) {
                 return `${timestamp} ${level}: ${message} - ${stack}`;
             }
             return `${timestamp} ${level}: ${message}`;
-        }),
+        })
     );
 }
 
